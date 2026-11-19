@@ -1,0 +1,14 @@
+{
+  "batch": "MAT-001",
+  "inventory": [
+    {"plate": "甲", "slots": [2]},
+    {"plate": "乙", "slots": [2, 3]}
+  ],
+  "rows": [
+    {"plate": "甲", "slot": 2, "value": 7},
+    {"plate": "乙", "slot": 2, "value": 13},
+    {"plate": "乙", "slot": 3, "value": null}
+  ],
+  "selection": ["甲", "乙"],
+  "masked": ["乙"]
+}
