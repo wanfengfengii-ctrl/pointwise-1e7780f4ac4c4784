@@ -38,6 +38,8 @@ python3 -B demo.py
 | `ledger.readback.read(db, result_id, view='rows')` | 以件号领初始账，以复检成果号领复检账。`rows` 返回带修订号和原行号的明细，`totals` 返回每盘的遮蔽状态、计数、合计。 |
 | `ledger.export.export_ledger(db, result_id, view='rows')` | 读取同一固定账并返回可写为 UTF-8 的 CSV 文本。 |
 
+按盘披露核账（V2）见 `DISCLOSURE.md`：`exchange.issue.issue_disclosure`、`exchange.issue.disclose_plate`、`exchange.accept.accept_disclosure`、`ledger.readback.read_disclosure`。V2 与原 V1 接口、旧件及历史账并存，共用原 `open_source` / `open_offline`。
+
 公开板录、选盘和纸单的序列使用列表或元组。标识为非空可打印文本，首尾无空白。槽号为正整数，盘名和槽号共同确定槽身份。清册可以列一个无槽的盘。每个已声明的真空槽须有一条 `value=None` 的原行。实测与改值使用 Python 整数，布尔值和浮点值被拒绝。选盘、遮蔽、撤遮及纸单中的同一改值目标各自不得重复。对已可见盘撤遮保持该盘可见。
 
 交换件外层字段为 `version`、`kind`、`piece_id`、`body` 和 `receipt`。版本为 1，类别为 `material-plate-piece`。正文含修订号、冻结号、批号、所选盘、遮蔽盘及完整槽表。槽号、原行号和实测值用规范十进制字符串传递，真空值用 JSON `null`。接纳核对有序槽身份、盘范围和遮蔽关系、收据绑定及正文 SHA-256。交接渠道负责发行方身份，摘要用于检查内容一致性。展示遮蔽只约束明细和核账的输出，交换件应交给有权处理完整槽材料的复检员。

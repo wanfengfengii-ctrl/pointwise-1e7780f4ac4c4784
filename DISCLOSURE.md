@@ -40,3 +40,10 @@
 在乙首次接纳前，保留可信凭据，逐案尝试删乙/3、改原行号和使用另一次发行的乙件。拒绝后仍可领取甲的原账，随后原乙件可用。原测试辅助函数 `tests.support.deny_sql(db, sqlite3.SQLITE_TRANSACTION, 'COMMIT')` 可阻断保存时的提交，退出上下文后可重试。将发行重开、断源接纳、账册重开及原回归纳入联动验证。
 
 交付说明需写明证据覆盖的盘事实、其他盘在交付中可见的信息，以及核验号固定范围的规则。继续使用 `.pointwise-runtime.json` 的现有运行格式，接通新旧核验并保留原回归。核验失败返回非零。演示打印实际核验账，显示断源补收前后两个核验号各自的披露范围。
+
+## 本实现说明
+
+- 证据覆盖的盘事实：`disclose_plate` 返回该盘整份槽表（数字槽号、实测值或真空、一基原行号）与开启材料。`credential.proof.root` 是对盘序内每盘承诺的 SHA-256 Merkle 根；每盘承诺是该盘槽表、`issue_id`、`revision_id`、盘名与随机盐的哈希。`payload.proof` 只提供该盘自己的盐、承诺及 Merkle 路径，足以把该盘固定到本次发行的根。
+- 其他盘在交付中可见的信息：`credential` 只公开 `version`、`issue_id`、`revision_id`、盘序与根；`payload` 只含本盘的槽表与路径。未披露盘的槽号、读值、原行出处和开启盐都留在发行侧。接收方即使补齐其他盘的件，也无法凭已收到的材料离线验证对未披露盘低取值域读值的猜测：缺少该盘的盐，任何猜测都无法还原其承诺。
+- 核验号固定范围：每次成功接纳新盘产生新 `audit_id`，其固定账沿 `credential` 盘序列出全部盘，已核验盘带 `verified` 明细、计数与合计，未披露盘为 `undisclosed`。同一凭据下同一盘合法重投返回首次核验号；已在账的较早核验号不随后续补收改变范围。相同发行号绑定不同凭据、跨发行拼接、篡改证据及提交失败都拒绝且不留部分成果。
+- 交付路径：`exchange.disclosure` 定义严格格式与证据运算；`exchange/issue.py` 的 `issue_disclosure`/`disclose_plate` 落在源库，`exchange/accept.py` 的 `accept_disclosure` 与 `ledger/readback.py` 的 `read_disclosure` 落在离线库。随机盐使用 `secrets`，时间无关字段足够；测试断言只依赖结构与值，不依赖具体盐。
